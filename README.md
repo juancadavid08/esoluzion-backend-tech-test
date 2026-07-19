@@ -55,6 +55,16 @@ Con Actuator habilitado:
 
 Esto permite monitorear salud del servicio y exponer metricas para scraping.
 
+## OpenAPI / Swagger (API-first)
+
+Se publico el contrato OpenAPI en YAML y se habilito Swagger UI:
+
+- Contrato: `/openapi/similar-products.yaml`
+- Swagger UI: `/swagger-ui.html`
+- API docs JSON (springdoc): `/v3/api-docs`
+
+Con esto se puede validar visualmente el endpoint y mantener el enfoque API-first.
+
 ## Benchmark local (k6 + mocks)
 
 El proyecto `backendDevTest` incluye infraestructura de benchmark y mocks.

@@ -21,3 +21,12 @@ management:
       probes:
         enabled: true
       show-details: never
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - name: similar-products-contract
+        url: /openapi/similar-products.yaml
