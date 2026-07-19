@@ -65,6 +65,23 @@ Se publico el contrato OpenAPI en YAML y se habilito Swagger UI:
 
 Con esto se puede validar visualmente el endpoint y mantener el enfoque API-first.
 
+## Postman Collection
+
+Se incluye una collection de Postman lista para importar:
+
+- `docs/postman/Esoluzion-Backend-Tech-Test.postman_collection.json`
+
+Incluye requests para:
+
+- Endpoint principal: `GET /product/{productId}/similar`
+- Observabilidad: `health`, `info`, `prometheus`
+- API-first: contrato YAML y Swagger UI
+
+Variables incluidas en la collection:
+
+- `baseUrl` (default: `http://localhost:5000`)
+- `productId` (default: `1`)
+
 ## Benchmark local (k6 + mocks)
 
 El proyecto `backendDevTest` incluye infraestructura de benchmark y mocks.
