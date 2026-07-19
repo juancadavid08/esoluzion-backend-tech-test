@@ -43,6 +43,13 @@ mvn clean test
 mvn clean package
 ```
 
+## CI
+
+Se incluyo workflow en GitHub Actions:
+
+- `.github/workflows/backend-ci.yml`
+- Ejecuta `mvn -B clean test` en cada `push` y `pull_request` a `main`.
+
 ## Scripts (equivalentes)
 
 No se usa `package.json` en backend Java, pero los comandos equivalentes son:
@@ -51,3 +58,10 @@ No se usa `package.json` en backend Java, pero los comandos equivalentes son:
 - BUILD: `mvn clean package`
 - TEST: `mvn test`
 - LINT: se puede incorporar con Checkstyle/SpotBugs en siguiente hito
+
+## Hito 2
+
+- Migracion a Java 17 + Spring Boot 3.
+- Pruebas de gateway HTTP con `MockWebServer` para validar parsing y resiliencia.
+- Prueba adicional de controller para respuesta `404`.
+- CI automatizado con GitHub Actions.

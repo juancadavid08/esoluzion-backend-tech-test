@@ -30,7 +30,7 @@ public class HttpProductsGateway implements ProductsGateway {
 
     public HttpProductsGateway(@Value("${external.api.base-url:http://localhost:3001}") String baseUrl,
                                ObjectMapper objectMapper) {
-        this.baseUrl = baseUrl;
+        this.baseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
         this.objectMapper = objectMapper;
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(CONNECT_TIMEOUT_MS);

@@ -1,5 +1,6 @@
 package com.esoluzion.backend.controller;
 
+import com.esoluzion.backend.exception.ProductNotFoundException;
 import com.esoluzion.backend.model.ProductDetail;
 import com.esoluzion.backend.service.SimilarProductsService;
 import org.junit.jupiter.api.Test;
@@ -35,5 +36,14 @@ class SimilarProductsControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value("2"))
                 .andExpect(jsonPath("$[0].name").value("Dress"));
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenProductDoesNotExist() throws Exception {
+        when(similarProductsService.getSimilarProducts("404"))
+                .thenThrow(new ProductNotFoundException("404"));
+
+        mockMvc.perform(get("/product/404/similar").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 }
