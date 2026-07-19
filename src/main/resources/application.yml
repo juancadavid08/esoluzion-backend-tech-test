@@ -10,3 +10,14 @@ similar-products:
   max-similar-ids: 20
   pool-size: 16
   queue-capacity: 100
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never

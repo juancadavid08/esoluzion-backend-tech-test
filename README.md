@@ -28,6 +28,8 @@ Archivo: `src/main/resources/application.yml`
 
 - `server.port: 5000`
 - `external.api.base-url: http://localhost:3001`
+- `management.endpoints.web.exposure.include: health,info,prometheus`
+- `similar-products.*` para tuning de concurrencia y timeouts
 
 ## Ejecucion local
 
@@ -42,6 +44,43 @@ mvn spring-boot:run
 mvn clean test
 mvn clean package
 ```
+
+## Observabilidad
+
+Con Actuator habilitado:
+
+- `GET /actuator/health`
+- `GET /actuator/info`
+- `GET /actuator/prometheus`
+
+Esto permite monitorear salud del servicio y exponer metricas para scraping.
+
+## Benchmark local (k6 + mocks)
+
+El proyecto `backendDevTest` incluye infraestructura de benchmark y mocks.
+
+Pasos sugeridos:
+
+```bash
+cd "d:\PROYECTOS\PRUEBA ESoluzion\backendDevTest"
+docker-compose up -d simulado influxdb grafana
+```
+
+Validar mocks:
+
+```bash
+curl http://localhost:3001/product/1/similarids
+```
+
+Con este backend corriendo en `5000`, lanzar benchmark:
+
+```bash
+docker-compose run --rm k6 run scripts/test.js
+```
+
+Dashboard de resultados:
+
+- `http://localhost:3000/d/Le2Ku9NMk/k6-performance-test`
 
 ## CI
 
@@ -76,3 +115,10 @@ No se usa `package.json` en backend Java, pero los comandos equivalentes son:
 - Executor dedicado para obtencion de detalles en paralelo.
 - Normalizacion de IDs similares (filtro de vacios, deduplicacion y limite por request).
 - Cobertura adicional de tests para limite/deduplicacion y caso sin IDs similares.
+
+## Hito 4
+
+- Observabilidad: Spring Boot Actuator + endpoint Prometheus.
+- Endpoint de salud para readiness/liveness (`/actuator/health`).
+- Test de integracion que valida la disponibilidad del health endpoint.
+- Documentacion para ejecutar benchmark local con mocks y k6.
