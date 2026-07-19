@@ -122,3 +122,13 @@ No se usa `package.json` en backend Java, pero los comandos equivalentes son:
 - Endpoint de salud para readiness/liveness (`/actuator/health`).
 - Test de integracion que valida la disponibilidad del health endpoint.
 - Documentacion para ejecutar benchmark local con mocks y k6.
+
+## Hito 5
+
+- Cobertura adicional de ramas de error en gateway:
+  - `404` -> `ProductNotFoundException`
+  - `500` inesperado -> `IllegalStateException`
+- Cobertura adicional en service:
+  - filtrado de `null` y `""`
+  - caso sin IDs similares
+- Documentacion consolidada de la estrategia de resiliencia.

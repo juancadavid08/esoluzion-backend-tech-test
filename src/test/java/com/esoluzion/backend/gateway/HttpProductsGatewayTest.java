@@ -55,6 +55,15 @@ class HttpProductsGatewayTest {
     }
 
     @Test
+    void shouldThrowIllegalStateForUnexpectedSimilarIdsStatus() {
+        server.enqueue(new MockResponse().setResponseCode(500));
+
+        assertThatThrownBy(() -> gateway.getSimilarIds("1"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Unexpected similarids status: 500");
+    }
+
+    @Test
     void shouldReturnProductDetailWhenFound() {
         server.enqueue(new MockResponse()
                 .setResponseCode(200)

@@ -5,6 +5,7 @@ import com.esoluzion.backend.model.ProductDetail;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -69,5 +70,20 @@ class SimilarProductsServiceTest {
         List<ProductDetail> result = service.getSimilarProducts("1");
 
         assertThat(result).isEmpty();
+    }
+
+    @Test
+    void shouldFilterNullAndBlankIds() {
+        ProductsGateway gateway = mock(ProductsGateway.class);
+        when(gateway.getSimilarIds("1")).thenReturn(Arrays.asList("2", null, "", "3"));
+        when(gateway.getProductDetail("2")).thenReturn(Optional.of(new ProductDetail("2", "Dress", BigDecimal.valueOf(19.99), true)));
+        when(gateway.getProductDetail("3")).thenReturn(Optional.of(new ProductDetail("3", "Boots", BigDecimal.valueOf(39.99), true)));
+
+        SimilarProductsService service = new SimilarProductsService(gateway, executor, 1500, 20);
+        List<ProductDetail> result = service.getSimilarProducts("1");
+
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).getId()).isEqualTo("2");
+        assertThat(result.get(1).getId()).isEqualTo("3");
     }
 }
