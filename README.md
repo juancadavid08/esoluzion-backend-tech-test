@@ -65,3 +65,14 @@ No se usa `package.json` en backend Java, pero los comandos equivalentes son:
 - Pruebas de gateway HTTP con `MockWebServer` para validar parsing y resiliencia.
 - Prueba adicional de controller para respuesta `404`.
 - CI automatizado con GitHub Actions.
+
+## Hito 3
+
+- Servicio de similares configurable por propiedades:
+  - `similar-products.detail-timeout-ms`
+  - `similar-products.max-similar-ids`
+  - `similar-products.pool-size`
+  - `similar-products.queue-capacity`
+- Executor dedicado para obtencion de detalles en paralelo.
+- Normalizacion de IDs similares (filtro de vacios, deduplicacion y limite por request).
+- Cobertura adicional de tests para limite/deduplicacion y caso sin IDs similares.

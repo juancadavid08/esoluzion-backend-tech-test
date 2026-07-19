@@ -4,3 +4,9 @@ server:
 external:
   api:
     base-url: http://localhost:3001
+
+similar-products:
+  detail-timeout-ms: 1500
+  max-similar-ids: 20
+  pool-size: 16
+  queue-capacity: 100

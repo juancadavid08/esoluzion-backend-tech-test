@@ -5,14 +5,22 @@ import com.esoluzion.backend.model.ProductDetail;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class SimilarProductsServiceTest {
+
+    private final Executor executor = Executors.newFixedThreadPool(4);
 
     @Test
     void shouldKeepOrderAndSkipMissingProducts() {
@@ -22,11 +30,44 @@ class SimilarProductsServiceTest {
         when(gateway.getProductDetail("3")).thenReturn(Optional.empty());
         when(gateway.getProductDetail("4")).thenReturn(Optional.of(new ProductDetail("4", "Boots", BigDecimal.valueOf(39.99), true)));
 
-        SimilarProductsService service = new SimilarProductsService(gateway);
+        SimilarProductsService service = new SimilarProductsService(gateway, executor, 1500, 20);
         List<ProductDetail> result = service.getSimilarProducts("1");
 
         assertThat(result).hasSize(2);
         assertThat(result.get(0).getId()).isEqualTo("2");
         assertThat(result.get(1).getId()).isEqualTo("4");
+    }
+
+    @Test
+    void shouldDeduplicateAndLimitSimilarIds() {
+        ProductsGateway gateway = mock(ProductsGateway.class);
+        List<String> ids = IntStream.rangeClosed(1, 30)
+                .mapToObj(String::valueOf)
+                .collect(Collectors.toList());
+        ids.addAll(List.of("2", "3", "4"));
+
+        when(gateway.getSimilarIds("1")).thenReturn(ids);
+        when(gateway.getProductDetail(anyString())).thenAnswer(invocation -> {
+            String id = invocation.getArgument(0);
+            return Optional.of(new ProductDetail(id, "Product " + id, BigDecimal.ONE, true));
+        });
+
+        SimilarProductsService service = new SimilarProductsService(gateway, executor, 1500, 20);
+        List<ProductDetail> result = service.getSimilarProducts("1");
+
+        assertThat(result).hasSize(20);
+        assertThat(result.get(0).getId()).isEqualTo("1");
+        assertThat(result.get(19).getId()).isEqualTo("20");
+    }
+
+    @Test
+    void shouldReturnEmptyWhenNoSimilarIds() {
+        ProductsGateway gateway = mock(ProductsGateway.class);
+        when(gateway.getSimilarIds("1")).thenReturn(Collections.emptyList());
+
+        SimilarProductsService service = new SimilarProductsService(gateway, executor, 1500, 20);
+        List<ProductDetail> result = service.getSimilarProducts("1");
+
+        assertThat(result).isEmpty();
     }
 }

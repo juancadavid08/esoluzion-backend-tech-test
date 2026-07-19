@@ -2,6 +2,8 @@ package com.esoluzion.backend.service;
 
 import com.esoluzion.backend.gateway.ProductsGateway;
 import com.esoluzion.backend.model.ProductDetail;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -9,26 +11,37 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
 public class SimilarProductsService {
 
-    private static final long DETAIL_TIMEOUT_MS = 1500;
     private final ProductsGateway productsGateway;
-    private final Executor detailExecutor = Executors.newFixedThreadPool(16);
+    private final Executor detailExecutor;
+    private final long detailTimeoutMs;
+    private final int maxSimilarIds;
 
-    public SimilarProductsService(ProductsGateway productsGateway) {
+    public SimilarProductsService(ProductsGateway productsGateway,
+                                  @Qualifier("similarProductsExecutor") Executor detailExecutor,
+                                  @Value("${similar-products.detail-timeout-ms:1500}") long detailTimeoutMs,
+                                  @Value("${similar-products.max-similar-ids:20}") int maxSimilarIds) {
         this.productsGateway = productsGateway;
+        this.detailExecutor = detailExecutor;
+        this.detailTimeoutMs = detailTimeoutMs;
+        this.maxSimilarIds = maxSimilarIds;
     }
 
     public List<ProductDetail> getSimilarProducts(String productId) {
-        List<String> similarIds = productsGateway.getSimilarIds(productId);
+        List<String> similarIds = productsGateway.getSimilarIds(productId).stream()
+                .filter(id -> id != null && !id.isEmpty())
+                .distinct()
+                .limit(maxSimilarIds)
+                .collect(Collectors.toList());
+
         List<CompletableFuture<Optional<ProductDetail>>> futures = similarIds.stream()
                 .map(this::fetchDetailAsync)
-            .collect(Collectors.toList());
+                .collect(Collectors.toList());
 
         List<ProductDetail> result = new ArrayList<>();
         for (CompletableFuture<Optional<ProductDetail>> future : futures) {
@@ -40,7 +53,7 @@ public class SimilarProductsService {
     private CompletableFuture<Optional<ProductDetail>> fetchDetailAsync(String similarId) {
         return CompletableFuture
                 .supplyAsync(() -> productsGateway.getProductDetail(similarId), detailExecutor)
-                .completeOnTimeout(Optional.empty(), DETAIL_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+                .completeOnTimeout(Optional.empty(), detailTimeoutMs, TimeUnit.MILLISECONDS)
                 .exceptionally(ignored -> Optional.empty());
     }
 }
