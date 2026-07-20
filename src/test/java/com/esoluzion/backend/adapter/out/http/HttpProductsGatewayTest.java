@@ -1,7 +1,8 @@
-package com.esoluzion.backend.gateway;
+package com.esoluzion.backend.adapter.out.http;
 
-import com.esoluzion.backend.exception.ProductNotFoundException;
-import com.esoluzion.backend.model.ProductDetail;
+import com.esoluzion.backend.domain.exception.ProductNotFoundException;
+import com.esoluzion.backend.domain.exception.UpstreamServiceException;
+import com.esoluzion.backend.domain.model.ProductDetail;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -59,7 +60,7 @@ class HttpProductsGatewayTest {
         server.enqueue(new MockResponse().setResponseCode(500));
 
         assertThatThrownBy(() -> gateway.getSimilarIds("1"))
-                .isInstanceOf(IllegalStateException.class)
+                .isInstanceOf(UpstreamServiceException.class)
                 .hasMessageContaining("Unexpected similarids status: 500");
     }
 

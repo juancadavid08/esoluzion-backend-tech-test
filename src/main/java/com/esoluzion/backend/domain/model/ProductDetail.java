@@ -1,4 +1,4 @@
-package com.esoluzion.backend.model;
+package com.esoluzion.backend.domain.model;
 
 import java.math.BigDecimal;
 

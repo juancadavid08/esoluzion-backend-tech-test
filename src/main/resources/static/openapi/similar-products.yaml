@@ -31,6 +31,22 @@ paths:
                 $ref: '#/components/schemas/SimilarProducts'
         '404':
           description: Product Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '400':
+          description: Invalid product identifier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '502':
+          description: Upstream products API unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
 components:
   schemas:
     SimilarProducts:
@@ -59,3 +75,18 @@ components:
         - name
         - price
         - availability
+    ApiError:
+      type: object
+      required: [timestamp, status, code, message, path]
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+        code:
+          type: string
+        message:
+          type: string
+        path:
+          type: string

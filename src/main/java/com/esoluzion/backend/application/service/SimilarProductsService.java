@@ -1,7 +1,8 @@
-package com.esoluzion.backend.service;
+package com.esoluzion.backend.application.service;
 
-import com.esoluzion.backend.gateway.ProductsGateway;
-import com.esoluzion.backend.model.ProductDetail;
+import com.esoluzion.backend.application.port.in.GetSimilarProductsUseCase;
+import com.esoluzion.backend.application.port.out.ProductsPort;
+import com.esoluzion.backend.domain.model.ProductDetail;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,14 +15,14 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 @Service
-public class SimilarProductsService {
+public class SimilarProductsService implements GetSimilarProductsUseCase {
 
-    private final ProductsGateway productsGateway;
+    private final ProductsPort productsGateway;
     private final Executor detailExecutor;
     private final long detailTimeoutMs;
     private final int maxSimilarIds;
 
-    public SimilarProductsService(ProductsGateway productsGateway,
+    public SimilarProductsService(ProductsPort productsGateway,
                                   @Qualifier("similarProductsExecutor") Executor detailExecutor,
                                   @Value("${similar-products.detail-timeout-ms}") long detailTimeoutMs,
                                   @Value("${similar-products.max-similar-ids}") int maxSimilarIds) {
@@ -31,9 +32,10 @@ public class SimilarProductsService {
         this.maxSimilarIds = maxSimilarIds;
     }
 
+    @Override
     public List<ProductDetail> getSimilarProducts(String productId) {
         List<String> similarIds = productsGateway.getSimilarIds(productId).stream()
-                .filter(id -> id != null && !id.isEmpty())
+                .filter(id -> id != null && !id.isBlank())
                 .distinct()
                 .limit(maxSimilarIds)
             .toList();

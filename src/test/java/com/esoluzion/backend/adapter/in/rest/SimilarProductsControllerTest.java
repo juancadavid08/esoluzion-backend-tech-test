@@ -1,8 +1,9 @@
-package com.esoluzion.backend.controller;
+package com.esoluzion.backend.adapter.in.rest;
 
-import com.esoluzion.backend.exception.ProductNotFoundException;
-import com.esoluzion.backend.model.ProductDetail;
-import com.esoluzion.backend.service.SimilarProductsService;
+import com.esoluzion.backend.application.port.in.GetSimilarProductsUseCase;
+import com.esoluzion.backend.domain.exception.ProductNotFoundException;
+import com.esoluzion.backend.domain.exception.UpstreamServiceException;
+import com.esoluzion.backend.domain.model.ProductDetail;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -25,7 +26,7 @@ class SimilarProductsControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private SimilarProductsService similarProductsService;
+    private GetSimilarProductsUseCase similarProductsService;
 
     @Test
     void shouldReturnSimilarProducts() throws Exception {
@@ -45,5 +46,22 @@ class SimilarProductsControllerTest {
 
         mockMvc.perform(get("/product/404/similar").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturnStructuredBadRequestForInvalidProductId() throws Exception {
+        mockMvc.perform(get("/product/invalid%20id/similar"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_PARAMETER"));
+    }
+
+    @Test
+    void shouldReturnStructuredBadGatewayForUpstreamFailure() throws Exception {
+        when(similarProductsService.getSimilarProducts("1"))
+                .thenThrow(new UpstreamServiceException("upstream unavailable"));
+
+        mockMvc.perform(get("/product/1/similar"))
+                .andExpect(status().isBadGateway())
+                .andExpect(jsonPath("$.code").value("UPSTREAM_ERROR"));
     }
 }

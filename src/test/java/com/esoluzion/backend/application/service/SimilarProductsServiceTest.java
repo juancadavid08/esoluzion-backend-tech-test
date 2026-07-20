@@ -1,7 +1,7 @@
-package com.esoluzion.backend.service;
+package com.esoluzion.backend.application.service;
 
-import com.esoluzion.backend.gateway.ProductsGateway;
-import com.esoluzion.backend.model.ProductDetail;
+import com.esoluzion.backend.application.port.out.ProductsPort;
+import com.esoluzion.backend.domain.model.ProductDetail;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -25,7 +25,7 @@ class SimilarProductsServiceTest {
 
     @Test
     void shouldKeepOrderAndSkipMissingProducts() {
-        ProductsGateway gateway = mock(ProductsGateway.class);
+        ProductsPort gateway = mock(ProductsPort.class);
         when(gateway.getSimilarIds("1")).thenReturn(List.of("2", "3", "4"));
         when(gateway.getProductDetail("2")).thenReturn(Optional.of(new ProductDetail("2", "Dress", BigDecimal.valueOf(19.99), true)));
         when(gateway.getProductDetail("3")).thenReturn(Optional.empty());
@@ -41,7 +41,7 @@ class SimilarProductsServiceTest {
 
     @Test
     void shouldDeduplicateAndLimitSimilarIds() {
-        ProductsGateway gateway = mock(ProductsGateway.class);
+        ProductsPort gateway = mock(ProductsPort.class);
         List<String> ids = Stream.concat(
                 IntStream.rangeClosed(1, 30).mapToObj(String::valueOf),
                 Stream.of("2", "3", "4"))
@@ -63,7 +63,7 @@ class SimilarProductsServiceTest {
 
     @Test
     void shouldReturnEmptyWhenNoSimilarIds() {
-        ProductsGateway gateway = mock(ProductsGateway.class);
+        ProductsPort gateway = mock(ProductsPort.class);
         when(gateway.getSimilarIds("1")).thenReturn(Collections.emptyList());
 
         SimilarProductsService service = new SimilarProductsService(gateway, executor, 1500, 20);
@@ -74,7 +74,7 @@ class SimilarProductsServiceTest {
 
     @Test
     void shouldFilterNullAndBlankIds() {
-        ProductsGateway gateway = mock(ProductsGateway.class);
+        ProductsPort gateway = mock(ProductsPort.class);
         when(gateway.getSimilarIds("1")).thenReturn(Arrays.asList("2", null, "", "3"));
         when(gateway.getProductDetail("2")).thenReturn(Optional.of(new ProductDetail("2", "Dress", BigDecimal.valueOf(19.99), true)));
         when(gateway.getProductDetail("3")).thenReturn(Optional.of(new ProductDetail("3", "Boots", BigDecimal.valueOf(39.99), true)));
@@ -89,7 +89,7 @@ class SimilarProductsServiceTest {
 
     @Test
     void shouldSkipProductWhenDetailFetchThrowsException() {
-        ProductsGateway gateway = mock(ProductsGateway.class);
+        ProductsPort gateway = mock(ProductsPort.class);
         when(gateway.getSimilarIds("1")).thenReturn(List.of("2", "3"));
         when(gateway.getProductDetail("2")).thenReturn(Optional.of(new ProductDetail("2", "Dress", BigDecimal.valueOf(19.99), true)));
         when(gateway.getProductDetail("3")).thenThrow(new RuntimeException("gateway failure"));

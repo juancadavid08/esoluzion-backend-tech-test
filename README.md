@@ -9,6 +9,21 @@ Implementacion del endpoint requerido por la prueba:
 - Java 17
 - Spring Boot 3
 - Maven
+- Arquitectura hexagonal (puertos y adaptadores)
+- RestClient, OpenAPI, Actuator y Prometheus
+
+## Arquitectura
+
+La explicación completa, con diagramas de componentes, clases, secuencia y errores, está disponible en [docs/architecture.md](docs/architecture.md).
+
+```text
+domain/                  # Modelo y excepciones sin dependencias de infraestructura
+application/port/in/     # Casos de uso
+application/port/out/    # Puertos requeridos por la aplicación
+application/service/     # Implementación de casos de uso
+adapter/in/rest/         # API HTTP y errores
+adapter/out/http/        # Integración con Products API
+```
 
 ## Comportamiento
 
@@ -34,7 +49,8 @@ Archivo: `src/main/resources/application.yml`
 ## Ejecucion local
 
 ```bash
-cd "d:\PROYECTOS\PRUEBA ESoluzion\back"
+git clone https://github.com/juancadavid08/backend-tech-test.git
+cd backend-tech-test
 mvn spring-boot:run
 ```
 
@@ -43,6 +59,7 @@ mvn spring-boot:run
 ```bash
 mvn clean test
 mvn clean package
+mvn clean verify
 ```
 
 ## Observabilidad
@@ -84,12 +101,13 @@ Variables incluidas en la collection:
 
 ## Benchmark local (k6 + mocks)
 
-El proyecto `backendDevTest` incluye infraestructura de benchmark y mocks.
+El [proyecto base de la prueba](https://github.com/dalogax/backendDevTest) incluye la infraestructura de benchmark y los mocks.
 
 Pasos sugeridos:
 
 ```bash
-cd "d:\PROYECTOS\PRUEBA ESoluzion\backendDevTest"
+git clone https://github.com/dalogax/backendDevTest.git
+cd backendDevTest
 docker-compose up -d simulado influxdb grafana
 ```
 
@@ -114,7 +132,21 @@ Dashboard de resultados:
 Se incluyo workflow en GitHub Actions:
 
 - `.github/workflows/backend-ci.yml`
-- Ejecuta `mvn -B clean test` en cada `push` y `pull_request` a `main`.
+- Ejecuta `mvn -B clean verify`, incluyendo 20 tests, JaCoCo y Checkstyle.
+
+## Tests funcionales E2E
+
+`SimilarProductsE2ETest` levanta la aplicación en un puerto real y un upstream HTTP controlado. Cubre éxito ordenado, lista vacía, respuesta parcial, producto inexistente y error del upstream.
+
+## Docker
+
+```bash
+mvn clean package
+docker build -t esoluzion-backend .
+docker run --rm -p 5000:5000 \
+  -e EXTERNAL_API_BASE_URL=http://host.docker.internal:3001 \
+  esoluzion-backend
+```
 
 ## Scripts (equivalentes)
 
@@ -123,7 +155,7 @@ No se usa `package.json` en backend Java, pero los comandos equivalentes son:
 - START: `mvn spring-boot:run`
 - BUILD: `mvn clean package`
 - TEST: `mvn test`
-- LINT: se puede incorporar con Checkstyle/SpotBugs en siguiente hito
+- LINT: `mvn checkstyle:check`
 
 ## Hito 2
 
@@ -154,7 +186,7 @@ No se usa `package.json` en backend Java, pero los comandos equivalentes son:
 
 - Cobertura adicional de ramas de error en gateway:
   - `404` -> `ProductNotFoundException`
-  - `500` inesperado -> `IllegalStateException`
+  - `500` inesperado -> `UpstreamServiceException`
 - Cobertura adicional en service:
   - filtrado de `null` y `""`
   - caso sin IDs similares

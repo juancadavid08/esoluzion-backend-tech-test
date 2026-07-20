@@ -1,4 +1,4 @@
-package com.esoluzion.backend.exception;
+package com.esoluzion.backend.domain.exception;
 
 public class ProductNotFoundException extends RuntimeException {
     public ProductNotFoundException(String productId) {

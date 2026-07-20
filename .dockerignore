@@ -1,0 +1,4 @@
+target/*
+!target/backend-tech-test-*.jar
+.git
+.idea
