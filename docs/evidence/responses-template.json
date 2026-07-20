@@ -1,0 +1,89 @@
+{
+  "metadata": {
+    "tester": "juanc",
+    "date": "2026-07-19",
+    "baseUrl": "http://localhost:5000",
+    "notes": "Validated with Docker services simulado, influxdb and grafana running"
+  },
+  "checks": [
+    {
+      "id": "health",
+      "request": "GET /actuator/health",
+      "statusExpected": 200,
+      "statusReceived": 200,
+      "responseBody": {
+        "status": "UP",
+        "groups": [
+          "liveness",
+          "readiness"
+        ]
+      },
+      "ok": true,
+      "notes": ""
+    },
+    {
+      "id": "openapi-yaml",
+      "request": "GET /openapi/similar-products.yaml",
+      "statusExpected": 200,
+      "statusReceived": 200,
+      "responseBody": "openapi: 3.0.0\ninfo:\n  title: SimilarProducts\n  version: '1.0'\nservers:\n  - url: 'http://localhost:5000'\npaths:\n  '/product/{productId}/similar':\n    parameters:\n      - schema:\n          type: string\n        name: productId\n        in: path\n        required: true\n    get:\n      operationId: get-product-similar\n      summary: Similar products\n      responses:\n        '200':\n          description: OK\n          content:\n            application/json:\n              schema:\n                $ref: '#/components/schemas/SimilarProducts'\n        '404':\n          description: Product Not found\ncomponents:\n  schemas:\n    SimilarProducts:\n      type: array\n      description: List of similar products to a given one ordered by similarity\n      minItems: 0\n      uniqueItems: true\n      items:\n        $ref: '#/components/schemas/ProductDetail'\n    ProductDetail:\n      description: Product detail\n      type: object\n      properties:\n        id:\n          type: string\n          minLength: 1\n        name:\n          type: string\n          minLength: 1\n        price:\n          type: number\n        availability:\n          type: boolean\n      required:\n        - id\n        - name\n        - price\n        - availability",
+      "ok": true,
+      "notes": ""
+    },
+    {
+      "id": "swagger-ui",
+      "request": "GET /swagger-ui.html",
+      "statusExpected": 200,
+      "statusReceived": 200,
+      "responseBody": "<!DOCTYPE html> ... <title>Swagger UI</title> ...",
+      "ok": true,
+      "notes": "UI served successfully"
+    },
+    {
+      "id": "similar-ok",
+      "request": "GET /product/1/similar",
+      "statusExpected": 200,
+      "statusReceived": 200,
+      "responseBody": [
+        {
+          "id": "2",
+          "name": "Dress",
+          "price": 19.99,
+          "availability": true
+        },
+        {
+          "id": "3",
+          "name": "Blazer",
+          "price": 29.99,
+          "availability": false
+        },
+        {
+          "id": "4",
+          "name": "Boots",
+          "price": 39.99,
+          "availability": true
+        }
+      ],
+      "ok": true,
+      "notes": "Requires mocks running on localhost:3001"
+    },
+    {
+      "id": "similar-not-found",
+      "request": "GET /product/999999/similar",
+      "statusExpected": 404,
+      "statusReceived": 404,
+      "responseBody": null,
+      "ok": true,
+      "notes": "Depends on mock dataset"
+    },
+    {
+      "id": "prometheus",
+      "request": "GET /actuator/prometheus",
+      "statusExpected": 200,
+      "statusReceived": 200,
+      "responseBody": "# HELP application_ready_time_seconds Time taken for the application to be ready to service requests\n# TYPE application_ready_time_seconds gauge\napplication_ready_time_seconds{main_application_class=\"com.esoluzion.backend.BackendTechTestApplication\"} 2.565\n# HELP application_started_time_seconds Time taken to start the application\n# TYPE application_started_time_seconds gauge\napplication_started_time_seconds{main_application_class=\"com.esoluzion.backend.BackendTechTestApplication\"} 2.524",
+      "ok": true,
+      "notes": "Metrics endpoint exposed and returning content"
+    }
+  ]
+}

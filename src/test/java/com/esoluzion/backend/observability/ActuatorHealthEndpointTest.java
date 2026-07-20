@@ -5,6 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -23,13 +26,17 @@ class ActuatorHealthEndpointTest {
 
     @Test
     void shouldExposeHealthEndpoint() {
-        ResponseEntity<Map> response = restTemplate.getForEntity(
+        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
                 "http://localhost:" + port + "/actuator/health",
-                Map.class
+            HttpMethod.GET,
+            HttpEntity.EMPTY,
+            new ParameterizedTypeReference<>() {
+            }
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().get("status")).isEqualTo("UP");
+        assertThat(response.getBody())
+            .isNotNull()
+            .containsEntry("status", "UP");
     }
 }

@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -42,10 +42,10 @@ class SimilarProductsServiceTest {
     @Test
     void shouldDeduplicateAndLimitSimilarIds() {
         ProductsGateway gateway = mock(ProductsGateway.class);
-        List<String> ids = IntStream.rangeClosed(1, 30)
-                .mapToObj(String::valueOf)
-                .collect(Collectors.toList());
-        ids.addAll(List.of("2", "3", "4"));
+        List<String> ids = Stream.concat(
+                IntStream.rangeClosed(1, 30).mapToObj(String::valueOf),
+                Stream.of("2", "3", "4"))
+            .toList();
 
         when(gateway.getSimilarIds("1")).thenReturn(ids);
         when(gateway.getProductDetail(anyString())).thenAnswer(invocation -> {
