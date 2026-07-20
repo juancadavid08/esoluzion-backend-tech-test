@@ -4,6 +4,8 @@ server:
 external:
   api:
     base-url: http://localhost:3001
+    connect-timeout-ms: 500
+    read-timeout-ms: 1200
 
 similar-products:
   detail-timeout-ms: 1500

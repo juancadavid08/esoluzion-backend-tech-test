@@ -3,7 +3,14 @@ info:
   title: SimilarProducts
   version: '1.0'
 servers:
-  - url: 'http://localhost:5000'
+  - url: '{protocol}://{host}:{port}'
+    variables:
+      protocol:
+        default: http
+      host:
+        default: localhost
+      port:
+        default: '5000'
 paths:
   '/product/{productId}/similar':
     parameters:

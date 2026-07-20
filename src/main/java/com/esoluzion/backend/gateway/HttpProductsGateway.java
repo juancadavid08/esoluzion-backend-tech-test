@@ -4,6 +4,7 @@ import com.esoluzion.backend.exception.ProductNotFoundException;
 import com.esoluzion.backend.model.ProductDetail;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -21,21 +22,28 @@ import java.util.Optional;
 @Component
 public class HttpProductsGateway implements ProductsGateway {
 
-    private static final int CONNECT_TIMEOUT_MS = 500;
-    private static final int READ_TIMEOUT_MS = 1200;
+    private static final int DEFAULT_CONNECT_TIMEOUT_MS = 500;
+    private static final int DEFAULT_READ_TIMEOUT_MS = 1200;
 
     private final String baseUrl;
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
-    public HttpProductsGateway(@Value("${external.api.base-url:http://localhost:3001}") String baseUrl,
+    @Autowired
+    public HttpProductsGateway(@Value("${external.api.base-url}") String baseUrl,
+                               @Value("${external.api.connect-timeout-ms}") int connectTimeoutMs,
+                               @Value("${external.api.read-timeout-ms}") int readTimeoutMs,
                                ObjectMapper objectMapper) {
         this.baseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
         this.objectMapper = objectMapper;
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setConnectTimeout(CONNECT_TIMEOUT_MS);
-        requestFactory.setReadTimeout(READ_TIMEOUT_MS);
+        requestFactory.setConnectTimeout(connectTimeoutMs);
+        requestFactory.setReadTimeout(readTimeoutMs);
         this.restTemplate = new RestTemplate(requestFactory);
+    }
+
+    HttpProductsGateway(String baseUrl, ObjectMapper objectMapper) {
+        this(baseUrl, DEFAULT_CONNECT_TIMEOUT_MS, DEFAULT_READ_TIMEOUT_MS, objectMapper);
     }
 
     @Override

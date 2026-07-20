@@ -86,4 +86,18 @@ class SimilarProductsServiceTest {
         assertThat(result.get(0).getId()).isEqualTo("2");
         assertThat(result.get(1).getId()).isEqualTo("3");
     }
+
+    @Test
+    void shouldSkipProductWhenDetailFetchThrowsException() {
+        ProductsGateway gateway = mock(ProductsGateway.class);
+        when(gateway.getSimilarIds("1")).thenReturn(List.of("2", "3"));
+        when(gateway.getProductDetail("2")).thenReturn(Optional.of(new ProductDetail("2", "Dress", BigDecimal.valueOf(19.99), true)));
+        when(gateway.getProductDetail("3")).thenThrow(new RuntimeException("gateway failure"));
+
+        SimilarProductsService service = new SimilarProductsService(gateway, executor, 1500, 20);
+        List<ProductDetail> result = service.getSimilarProducts("1");
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getId()).isEqualTo("2");
+    }
 }

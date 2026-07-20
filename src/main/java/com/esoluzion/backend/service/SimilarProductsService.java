@@ -12,7 +12,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Service
 public class SimilarProductsService {
@@ -24,8 +23,8 @@ public class SimilarProductsService {
 
     public SimilarProductsService(ProductsGateway productsGateway,
                                   @Qualifier("similarProductsExecutor") Executor detailExecutor,
-                                  @Value("${similar-products.detail-timeout-ms:1500}") long detailTimeoutMs,
-                                  @Value("${similar-products.max-similar-ids:20}") int maxSimilarIds) {
+                                  @Value("${similar-products.detail-timeout-ms}") long detailTimeoutMs,
+                                  @Value("${similar-products.max-similar-ids}") int maxSimilarIds) {
         this.productsGateway = productsGateway;
         this.detailExecutor = detailExecutor;
         this.detailTimeoutMs = detailTimeoutMs;
@@ -37,11 +36,11 @@ public class SimilarProductsService {
                 .filter(id -> id != null && !id.isEmpty())
                 .distinct()
                 .limit(maxSimilarIds)
-                .collect(Collectors.toList());
+            .toList();
 
         List<CompletableFuture<Optional<ProductDetail>>> futures = similarIds.stream()
                 .map(this::fetchDetailAsync)
-                .collect(Collectors.toList());
+            .toList();
 
         List<ProductDetail> result = new ArrayList<>();
         for (CompletableFuture<Optional<ProductDetail>> future : futures) {
