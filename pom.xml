@@ -11,7 +11,7 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.esoluzion</groupId>
+    <groupId>com.techtest</groupId>
     <artifactId>backend-tech-test</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>backend-tech-test</name>

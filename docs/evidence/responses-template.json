@@ -81,7 +81,7 @@
       "request": "GET /actuator/prometheus",
       "statusExpected": 200,
       "statusReceived": 200,
-      "responseBody": "# HELP application_ready_time_seconds Time taken for the application to be ready to service requests\n# TYPE application_ready_time_seconds gauge\napplication_ready_time_seconds{main_application_class=\"com.esoluzion.backend.BackendTechTestApplication\"} 2.565\n# HELP application_started_time_seconds Time taken to start the application\n# TYPE application_started_time_seconds gauge\napplication_started_time_seconds{main_application_class=\"com.esoluzion.backend.BackendTechTestApplication\"} 2.524",
+      "responseBody": "# HELP application_ready_time_seconds Time taken for the application to be ready to service requests\n# TYPE application_ready_time_seconds gauge\napplication_ready_time_seconds{main_application_class=\"com.techtest.similarproducts.BackendTechTestApplication\"} 2.565\n# HELP application_started_time_seconds Time taken to start the application\n# TYPE application_started_time_seconds gauge\napplication_started_time_seconds{main_application_class=\"com.techtest.similarproducts.BackendTechTestApplication\"} 2.524",
       "ok": true,
       "notes": "Metrics endpoint exposed and returning content"
     }

@@ -1,4 +1,4 @@
-# Esoluzion Backend Tech Test
+# Similar Products Backend Technical Test
 
 Implementacion del endpoint requerido por la prueba:
 
@@ -86,7 +86,7 @@ Con esto se puede validar visualmente el endpoint y mantener el enfoque API-firs
 
 Se incluye una collection de Postman lista para importar:
 
-- `docs/postman/Esoluzion-Backend-Tech-Test.postman_collection.json`
+- `docs/postman/Similar-Products-Backend-Tech-Test.postman_collection.json`
 
 Incluye requests para:
 
@@ -142,10 +142,10 @@ Se incluyo workflow en GitHub Actions:
 
 ```bash
 mvn clean package
-docker build -t esoluzion-backend .
+docker build -t similar-products-backend .
 docker run --rm -p 5000:5000 \
   -e EXTERNAL_API_BASE_URL=http://host.docker.internal:3001 \
-  esoluzion-backend
+  similar-products-backend
 ```
 
 ## Scripts (equivalentes)
